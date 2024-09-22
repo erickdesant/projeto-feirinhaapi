@@ -57,14 +57,13 @@ app.get("/items",(req,res) => {
 })
 
 app.get("/items/:id", (req,res) => {
-    const id = Number(req.params.id);
+    const id = req.params.id;
+    if(typeof (id) !== 'number' || id <= 0){
+        return res.status(400).send("ID inválido")
+    }
     const response = items.find(item => item.id === id)
     if(response.length === 0){
-        if(id <= 0){
-            res.status(400).send("ID inválido")
-        }else{
-            res.status(404).send("Nenhum item encontrado")
-        }
+        res.status(404).send("Nenhum item encontrado")
     }
     else{
         res.status(200).send(response)
