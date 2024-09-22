@@ -1,18 +1,30 @@
 import express,{json} from "express";
 
-
 const app = express();
 const port = 5001;
 
 app.use(express.json());
 
-const items = [{
-    id: 1,
-    name: "Pêra",
-    quantity: 3,
-    type: "Fruta",
-}]
-
+const items = [
+    {
+        id: 1,
+        name: "Pêra",
+        quantity: 3,
+        type: "Fruta",
+    },
+    {
+        id: 2,
+        name: "Alface",
+        quantity: 1,
+        type: "Legume",
+    },
+    {
+        id: 3,
+        name: "Frango",
+        quantity: 5,
+        type: "Carne",
+    }
+]
 
 app.post("/items", (req, res) => {
     const item = req.body
@@ -21,7 +33,7 @@ app.post("/items", (req, res) => {
         item.type && typeof item.type === 'string') {
             for(let i = 0; i < items.length; i++){
                 if(item.name === items[i].name){
-                    res.status(409).send("Item já existente")
+                    return res.status(409).send("Item já existente")
                 }
             }
             items.push({
@@ -30,18 +42,23 @@ app.post("/items", (req, res) => {
             })
             res.status(201).send("Item criado com sucesso")
         }else{
-            res.status(422).send("Unprocessable entity")
+            res.status(422).send("Body inválido")
         }
 })
 
 app.get("/items",(req,res) => {
-    res.send(items);
+    const { type } = req.query
+    if(type){
+        const response = items.filter(item => item.type === type)
+        res.status(200).send(response)
+    }else{
+        res.status(200).send(items);
+    }
 })
 
 app.get("/items/:id", (req,res) => {
     const id = Number(req.params.id);
-    console.log(id);
-    const response = items.filter(item => item.id === id)
+    const response = items.find(item => item.id === id)
     if(response.length === 0){
         if(id <= 0){
             res.status(400).send("ID inválido")
@@ -54,7 +71,6 @@ app.get("/items/:id", (req,res) => {
     }
 })
 
-
 app.listen(port, () => {
-    console.log(`Backend server is running on http://localhost:${port}`);
+    console.log(`Servidor rodando na porta: ${port}`);
 });
